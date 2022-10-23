@@ -3,7 +3,7 @@ from urllib.request import urlopen  # python自带爬虫库
 import json  # python自带的json数据库
 import pandas as pd
 import time
-import datetime
+from datetime import datetime, timedelta
 import akshare as ak
 import requests
 token = 'ff1a49cfe14b44379748465de7e68a64'
@@ -99,10 +99,11 @@ def get_price():
     return ak.stock_zh_a_spot_em()
 
 
-now_date = datetime.datetime.now()
+now_date = datetime.now()
+yesterday_date = now_date - timedelta(days=1)
 begin_time = st.sidebar.date_input(
     "起始日期",
-    now_date)
+    yesterday_date)
 until_time = st.sidebar.date_input(
     "结束日期",
     now_date)
@@ -128,7 +129,7 @@ selected_stock.drop_duplicates(subset=['股票代码'],keep='first', inplace=Tru
 selected_stock.index = range(len(selected_stock))
 
 # 设置买入股票数量
-buy_num = st.sidebar.number_input("买入股票数量", 1, None, 5)
+buy_num = st.sidebar.number_input("买入股票数量", 1, None, 10)
 # 求出买入股票的代码和名称
 buy_stock = selected_stock[['股票代码', '股票名称', '近一个月个股研报数目']][:buy_num]
 
