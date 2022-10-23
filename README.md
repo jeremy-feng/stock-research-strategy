@@ -1,18 +1,3 @@
----
-title: 个股研报事件策略&选股结果自动推送到微信
-author: Jeremy Feng
-date: '2022-10-23'
-slug: stock-research-strategy
-categories:
-  - 量化研究
-  - 应用程序
-tags:
-  - 量化研究
-  - Streamlit
-toc: yes
-description: 基于东方财富网的个股研报数据进行事件策略选股，并实现自动化筛选股票和推送选股结果。
----
-
 [![App](https://img.shields.io/badge/Streamlit-App-brightgreen.svg?style=flat-square)](https://jeremy-feng-stock-research-strategy-app-0bkacc.streamlitapp.com/) 
 
 策略逻辑：选择当天发布的研报中评级为“买入”（最高评级）的股票，按照“近一个月个股研报数目”降序排列，选择前若干只股票进行等权买入。
