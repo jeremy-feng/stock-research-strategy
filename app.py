@@ -21,7 +21,7 @@ def change(x):
         return x
 
 
-@st.cache
+# @st.cache
 def get_research_report_data(begin_time, until_time):
     """
     获取个股研报历史数据，设置起始时间和结束时间
@@ -94,7 +94,7 @@ def get_research_report_data(begin_time, until_time):
         return None
 
 
-@st.cache
+# @st.cache
 def get_price():
     return ak.stock_zh_a_spot_em()
 
