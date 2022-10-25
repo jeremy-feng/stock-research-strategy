@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta
 import akshare as ak
 import requests
+
 token = 'ff1a49cfe14b44379748465de7e68a64'
 
 pd.set_option("expand_frame_repr", False)  # 当列太多时不换行
@@ -21,7 +22,6 @@ def change(x):
         return x
 
 
-# @st.cache
 def get_research_report_data(begin_time, until_time):
     """
     获取个股研报历史数据，设置起始时间和结束时间
@@ -94,7 +94,6 @@ def get_research_report_data(begin_time, until_time):
         return None
 
 
-# @st.cache
 def get_price():
     return ak.stock_zh_a_spot_em()
 
@@ -124,7 +123,7 @@ selected_stock = data[condition]
 if st.sidebar.checkbox("选择研报数量最多的股票", True):
     selected_stock = selected_stock.sort_values(by='近一个月个股研报数目', ascending=False)
 # 删除重复的股票
-selected_stock.drop_duplicates(subset=['股票代码'],keep='first', inplace=True)
+selected_stock.drop_duplicates(subset=['股票代码'], keep='first', inplace=True)
 # 重新索引
 selected_stock.index = range(len(selected_stock))
 
@@ -141,39 +140,48 @@ buy_stock['代码'] = buy_stock['股票代码'].apply(lambda x: x[2:])
 price = get_price()
 # 将最新价合并到买入股票的代码和名称中
 buy_stock = pd.merge(buy_stock, price, on='代码', how='left')
+
+
 # 计算每只股票买入的股数
-buy_stock['买入股数'] = buy_stock['最新价'].apply(lambda x: int((buy_money // x) // 100 * 100))
+def get_buy_num(x):
+    try:
+        return int(buy_money // x) // 100 * 100
+    except:
+        return 0
+
+
+buy_stock['买入股数'] = buy_stock['昨收'].apply(lambda x: get_buy_num(x))
 
 # 显示行情数据
 st.markdown(f'''
 <a href={'http://quote.eastmoney.com/center/'}><button style="background-color:white;">行情中心</button></a>
-''',unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 # 显示原始个股研报数据
 st.markdown(f'''
 <a href={'https://data.eastmoney.com/report/stock.jshtml'}><button style="background-color:white;">个股研报</button></a>
-''',unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 # 显示买入股票的代码、名称、最新价格和买入金额
-buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '最新价', '买入股数']]
+buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '昨收', '买入股数']]
+# 将昨收列只显示两位小数
+buy_stock['昨收'] = buy_stock['昨收'].apply(lambda x: round(x, 2))
 st.write("买入股票：")
 st.dataframe(buy_stock)
-
 
 # 开始推动到pushplus
 if st.button("推送到微信"):
     # 推送标题
-    title= now_date.strftime("%Y-%m-%d") + "个股研报策略选股结果"
+    title = now_date.strftime("%Y-%m-%d") + "个股研报策略选股结果"
     # 将buy_stock转换为markdown格式
     buy_stock_md = buy_stock.to_markdown(index=False)
     # 推送内容
     content = buy_stock_md
     template = 'markdown'
-    headers = {'Content-Type':'application/json'}
-    url = 'http://www.pushplus.plus/send?token='+token+'&title='+title+'&content='+content+'&template='+template
+    headers = {'Content-Type': 'application/json'}
+    url = 'http://www.pushplus.plus/send?token=' + token + '&title=' + title + '&content=' + content + '&template=' + template
     requests.get(url)
     st.success("推送成功")
-
 
 # 显示所有个股研报
 if st.button("显示所有个股研报"):
