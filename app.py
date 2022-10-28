@@ -22,6 +22,7 @@ def change(x):
         return x
 
 
+@st.cache
 def get_research_report_data(begin_time, until_time):
     """
     获取个股研报历史数据，设置起始时间和结束时间
@@ -99,16 +100,17 @@ def get_price():
 
 
 now_date = datetime.now()
+
 yesterday_date = now_date - timedelta(days=1)
-begin_time = st.sidebar.date_input(
+begin_date = st.sidebar.date_input(
     "起始日期",
     yesterday_date)
-until_time = st.sidebar.date_input(
+until_date = st.sidebar.date_input(
     "结束日期",
     now_date)
 
-begin_time_str = begin_time.strftime("%Y-%m-%d")
-until_time_str = until_time.strftime("%Y-%m-%d")
+begin_time_str = begin_date.strftime("%Y-%m-%d")
+until_time_str = until_date.strftime("%Y-%m-%d")
 
 data = get_research_report_data(begin_time_str, until_time_str)
 
@@ -150,7 +152,12 @@ def get_buy_num(x):
         return 0
 
 
-buy_stock['买入股数'] = buy_stock['昨收'].apply(lambda x: get_buy_num(x))
+# 如果能获取最新价，则用最新价
+try:
+    buy_stock['买入股数'] = buy_stock['最新价'].apply(lambda x: get_buy_num(x))
+# 如果不能获取最新价（如早上开盘前），则用昨收价
+except:
+    buy_stock['买入股数'] = buy_stock['昨收'].apply(lambda x: get_buy_num(x))
 
 # 显示行情数据
 st.markdown(f'''
@@ -163,9 +170,9 @@ st.markdown(f'''
 ''', unsafe_allow_html=True)
 
 # 显示买入股票的代码、名称、最新价格和买入金额
-buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '昨收', '买入股数']]
+buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '最新价', '买入股数']]
 # 将昨收列只显示两位小数
-buy_stock['昨收'] = buy_stock['昨收'].apply(lambda x: round(x, 2))
+buy_stock['昨收'] = buy_stock['最新价'].apply(lambda x: round(x, 2))
 st.write("买入股票：")
 st.dataframe(buy_stock)
 
