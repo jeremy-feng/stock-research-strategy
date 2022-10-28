@@ -54,7 +54,7 @@ def get_research_report_data(begin_time, until_time):
             if content_1["data"]:
                 df = pd.DataFrame(content_1["data"])
             else:
-                print('今日个股研报无数据')
+                st.write('已爬取所有个股研报数据')
                 break
             df_0 = df[
                 ["stockName", "stockCode", "title", "orgName", "orgSName", "predictThisYearPe", "predictThisYearEps",
@@ -81,7 +81,7 @@ def get_research_report_data(begin_time, until_time):
                 "publishDate": "发布日期"
             }, inplace=True)
             data.append(df_0)
-            print("已爬取第%d页，当前页有%d行数据" % (pageNum, len(df_0)))
+            st.write("已爬取第%d页，当前页有%d行数据" % (pageNum, len(df_0)))
             pageNum += 1
             time.sleep(1)
         if not data:
@@ -91,7 +91,7 @@ def get_research_report_data(begin_time, until_time):
             total['股票代码'] = total['股票代码'].apply(lambda x: change(x))
             return total
     except Exception as e:
-        print("报错，报错内容：", str(e))
+        st.write("报错，报错内容：", str(e))
         return None
 
 
