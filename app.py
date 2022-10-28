@@ -22,7 +22,7 @@ def change(x):
         return x
 
 
-@st.cache
+@st.cache(suppress_st_warning=True)
 def get_research_report_data(begin_time, until_time):
     """
     获取个股研报历史数据，设置起始时间和结束时间
