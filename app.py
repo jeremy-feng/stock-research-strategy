@@ -155,9 +155,13 @@ def get_buy_num(x):
 # 如果能获取最新价，则用最新价
 try:
     buy_stock['买入股数'] = buy_stock['最新价'].apply(lambda x: get_buy_num(x))
+    # 将最新价重命名为股价
+    buy_stock.rename(columns={'最新价': '股价'}, inplace=True)
 # 如果不能获取最新价（如早上开盘前），则用昨收价
 except:
     buy_stock['买入股数'] = buy_stock['昨收'].apply(lambda x: get_buy_num(x))
+    # 将昨收价重命名为股价
+    buy_stock.rename(columns={'昨收': '股价'}, inplace=True)
 
 # 显示行情数据
 st.markdown(f'''
@@ -170,9 +174,9 @@ st.markdown(f'''
 ''', unsafe_allow_html=True)
 
 # 显示买入股票的代码、名称、最新价格和买入金额
-buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '最新价', '买入股数']]
+buy_stock = buy_stock[['股票代码', '股票名称', '近一个月个股研报数目', '股价', '买入股数']]
 # 将昨收列只显示两位小数
-buy_stock['昨收'] = buy_stock['最新价'].apply(lambda x: round(x, 2))
+buy_stock['股价'] = buy_stock['股价'].apply(lambda x: round(x, 2))
 st.write("买入股票：")
 st.dataframe(buy_stock)
 
